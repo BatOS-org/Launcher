@@ -1,14 +1,44 @@
-import os
-import sys
+from PySide6.QtWidgets import QApplication, QMainWindow, QListWidget, QListWidgetItem, QVBoxLayout, QWidget
+from PySide6.QtGui import QIcon
+from PySide6.QtCore import Qt, QProcess
 
-from PySide6.QtGui import QGuiApplication
+from app_scanner import get_installed_apps
 
-print("QT_QPA_PLATFORM =", os.environ.get("QT_QPA_PLATFORM"))
-print("WAYLAND_DISPLAY =", os.environ.get("WAYLAND_DISPLAY"))
-print("XDG_SESSION_TYPE =", os.environ.get("XDG_SESSION_TYPE"))
+class AppLauncher(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.app_list = QListWidget()
+        
+        # Beispiel-Apps (wie deine Daten)
+        apps = get_installed_apps()
 
-app = QGuiApplication(sys.argv)
+        process = QProcess()
+        
+        for app in apps:
+            item = QListWidgetItem(app['name'])
+            
+            # Icon aus Theme laden
+            icon = QIcon.fromTheme(app['icon'])
+            
+            # Optional: Fallback-Icon, falls Theme es nicht hat
+            if icon.isNull():
+                print(f"Icon '{app['icon']}' nicht im Theme gefunden!")
+                # Hier könntest du ein Standard-Icon setzen
+                # icon = QIcon.fromTheme("application-x-executable")
+            
+            item.setIcon(icon)
+            self.app_list.addItem(item)
+        
+        layout = QVBoxLayout()
+        layout.addWidget(self.app_list)
+        self.app_list.itemClicked.connect(process.startDetached("okular"))
+        
+        central = QWidget()
+        central.setLayout(layout)
+        self.setCentralWidget(central)
 
-print("QPA platform =", app.platformName())
-
-app.quit()
+if __name__ == "__main__":
+    app = QApplication([])
+    window = AppLauncher()
+    window.show()
+    app.exec()

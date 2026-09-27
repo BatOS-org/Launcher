@@ -68,10 +68,6 @@ CMakeLists.txt.user*
 # Python byte code
 *.pyc
 
-# nixOS files
-flake.lock
-flake.nix
-
 # Binaries
 # --------
 *.dll
